@@ -1,39 +1,115 @@
 using System;
 using System.Collections;
-public class MyList
+using System.Security.Cryptography.X509Certificates;
+public class MyList<TItem>
 {
-    private int[] _array = new int[4];
-    
+    private int[] _array;
     private int _count = 0;
+    public int _capacity = 4;
 
-    public int Count 
+    public int Capacity
     {
-        get 
+        set
         {
-             return _count;
-             
+            if (_capacity > value)
+            {
+                System.Array.Resize(ref _array, value);
+                _capacity = value;
+            }
         }
-          
+        get => _capacity;
+    }
+
+    public int Count => _count;
+
+    public MyList()
+    {
+        _array = new int[_capacity];
+    }
+
+    public MyList(int capacity)
+    {
+        _array = new int[capacity];
+        this.Capacity = capacity;
     }
 
     
-    public int Add (int item) 
+    public void Add(int item) 
     {
-       if (_count < _array.Length)
+        
+        if (_count >= _capacity)
         {
-            _array[_count] = item;
-            _count++;
-
-            return (_count - 1);
+            int[] new_array = new int[_capacity*2];
+            for (int i = 0; i < _capacity; i++)
+            {
+                new_array[i] = _array[i];
+            }
+            _array = new_array;
         }
 
-        return -1;
+        _array[_count] = item;
+        _count++;
+    }
 
+    public void Remove(int item) 
+    {
+       for (int i = 0; i < _count; i++)
+       {
+            if(_array[i] >= item)
+            {
+            RemoveAt (i);
+            return;
+            }
+       }
+    }
+
+    public void RemoveAt(int index) 
+    {
+       if (index < 0 && index >= _count)
+        {
+            Console.WriteLine ($"Ошибка ввода индекса");
+            return;
+        }
+       
+       
+       if ((index >= 0) && (index <= _count))
+        {
+            for (int i = index; i < _count - 1; i++)
+            {
+                _array[i] = _array[i + 1];
+            }
+
+            _count--;
+
+        }
+    }
+
+    public void Insert(int index, int item) 
+    {
+
+        if (index < 0 && index > _count)
+        {
+            Console.WriteLine ($"Ошибка ввода индекса");
+            return;
+        }
+        
+        for (int i = _count; i > index; i--)
+            _array [i] = _array [i-1];
+
+        _array[index] = item;
+        _count++;
+    }
+
+    public void Clear() 
+    {
+        _array = new int[_capacity];
+        _count = 0;
+        
     }
 
     public int IndexOf(int item)
     {
-        for (int i = 0; i < Count; i++)
+        for (int i = 0; i < _array.Length; i++)
         {
             if (_array[i] == item)
             {
@@ -43,51 +119,58 @@ public class MyList
         return -1;
         
     }
-    public void Remove(int item) 
-    {
-        RemoveAt(IndexOf(item));
 
-        
-    }
-
-    public void RemoveAt(int index) 
+    public void ForEach(System.Action<int> action)
     {
-       if ((index >= 0) && (index < Count))
+        for (int i = 0; i < _count; i++)
         {
-            for (int i = index; i < Count - 1; i++)
-            {
-                _array[i] = _array[i + 1];
-            }
-            _count--;
+            action(_array[i]); 
         }
-       
+
     }
 
-    public void Insert(int index, int item) 
+        
+    public int Find(System.Func<int, bool>  predicate)
     {
-        if ((_count + 1 <= _array.Length) && (index < Count) && (index >= 0))
+        for (int i = 0; i < _count; i++)
         {
-            _count++;
-
-            for (int i = Count - 1; i > index; i--)
+            if (predicate(_array[i]))
             {
-                _array[i] = _array[i - 1];
+                return _array[i]; 
             }
-            _array[index] = item;
-            
         }
-        
+        return default;
     }
 
-    public void Clear() 
+    public void Sort(System.Func<int, int, int> sort)
     {
-        _count = 0;
-        
+        for (int i = 0; i < _count - 1; i++)
+        {
+            for (int j = 0; j < _count - 1 - i; j++)
+            {
+                if (sort(_array[j], _array[j + 1]) > 0)
+                {
+                    int temp = _array[j];
+                    _array[j] = _array[j + 1];
+                    _array[j + 1] = temp;
+                }
+            }
+        }
     }
 
-    public string ToString() 
+    public override string ToString() 
     { 
-         return string.Join(", ", _array); 
+        string result = "[";
+
+        for(int i = 0; i < Count; i++)
+        {
+            result += _array [i];
+            if(i < Count - 1)
+                result += ", ";
+        }
+
+        result += "}";
+        return result;
     }
 
 
