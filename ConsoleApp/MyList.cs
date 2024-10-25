@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using System.Security.Cryptography.X509Certificates;
 public class MyList<TItem>
 {
-    private int[] _array;
+    private TItem[] _array;
     private int _count = 0;
     public int _capacity = 4;
 
@@ -24,138 +21,79 @@ public class MyList<TItem>
 
     public MyList()
     {
-        _array = new int[_capacity];
+        _array = new TItem[_capacity];
     }
 
     public MyList(int capacity)
     {
-        _array = new int[capacity];
+        _array = new TItem[capacity];
         this.Capacity = capacity;
     }
 
-    
-    public void Add(int item) 
+    public void Add(TItem item) 
     {
-        
-        if (_count >= _capacity)
+        if (_count + 1 >= _capacity)
         {
-            int[] new_array = new int[_capacity*2];
-            for (int i = 0; i < _capacity; i++)
-            {
-                new_array[i] = _array[i];
-            }
-            _array = new_array;
+            this.Capacity *= 2;
         }
 
-        _array[_count] = item;
-        _count++;
+        _array[_count++] = item;
     }
 
-    public void Remove(int item) 
+    public void Remove(TItem item) 
     {
-       for (int i = 0; i < _count; i++)
-       {
-            if(_array[i] >= item)
+        int index = Array.IndexOf(_array, item, 0, _count);
+        if (index >= 0) 
+        {
+            for (int i = index; i < _count - 1; i++)
             {
-            RemoveAt (i);
-            return;
+            _array[i] = _array[i + 1];
             }
-       }
+            _count--;
+            return;
+        }
     }
 
     public void RemoveAt(int index) 
     {
-       if (index < 0 && index >= _count)
+        if (index < 0 && index >= _count)
         {
             Console.WriteLine ($"Ошибка ввода индекса");
             return;
         }
-       
-       
-       if ((index >= 0) && (index <= _count))
+        for (int i = index; i < _count - 1; i++)
         {
-            for (int i = index; i < _count - 1; i++)
-            {
-                _array[i] = _array[i + 1];
-            }
-
-            _count--;
-
+            _array[i] = _array[i + 1];
         }
+    
+        _count--; 
     }
 
-    public void Insert(int index, int item) 
+    public void Insert(int index, TItem item) 
     {
-
         if (index < 0 && index > _count)
         {
             Console.WriteLine ($"Ошибка ввода индекса");
             return;
         }
-        
-        for (int i = _count; i > index; i--)
-            _array [i] = _array [i-1];
+        if (_count >= _capacity)
+            {
+                Capacity *= 2;
+            }
 
-        _array[index] = item;
-        _count++;
+        for (int i = _count; i > index; i--)
+            {
+            _array[i] = _array[i - 1];
+            }
+
+        _array[index] = item; 
+        _count++; 
     }
 
     public void Clear() 
     {
-        _array = new int[_capacity];
-        _count = 0;
-        
-    }
-
-    public int IndexOf(int item)
-    {
-        for (int i = 0; i < _array.Length; i++)
-        {
-            if (_array[i] == item)
-            {
-                return i;
-            }
-        }
-        return -1;
-        
-    }
-
-    public void ForEach(System.Action<int> action)
-    {
-        for (int i = 0; i < _count; i++)
-        {
-            action(_array[i]); 
-        }
-
-    }
-
-        
-    public int Find(System.Func<int, bool>  predicate)
-    {
-        for (int i = 0; i < _count; i++)
-        {
-            if (predicate(_array[i]))
-            {
-                return _array[i]; 
-            }
-        }
-        return default;
-    }
-
-    public void Sort(System.Func<int, int, int> sort)
-    {
-        for (int i = 0; i < _count - 1; i++)
-        {
-            for (int j = 0; j < _count - 1 - i; j++)
-            {
-                if (sort(_array[j], _array[j + 1]) > 0)
-                {
-                    int temp = _array[j];
-                    _array[j] = _array[j + 1];
-                    _array[j + 1] = temp;
-                }
-            }
-        }
+    _array = new TItem[_capacity]; 
+    _count = 0;
     }
 
     public override string ToString() 
@@ -173,5 +111,63 @@ public class MyList<TItem>
         return result;
     }
 
+    public int IndexOf(TItem item)
+    {
+        for (int i = 0; i < _count; i++) 
+        {
+            if (EqualityComparer<TItem>.Default.Equals(_array[i], item)) 
+            {
+                return i; 
+            }
+        }
+        return -1; 
+    }
 
+    public void ForEach(System.Action<TItem> action)
+    {
+        if (action == null) 
+    {
+        throw new ArgumentNullException(nameof(action), "Действие не может быть null.");
+    }
+
+    for (int i = 0; i < _count; i++) 
+    {
+        action(_array[i]); 
+    }
+    }
+
+    public TItem Find(System.Func<TItem, bool>  predicate)
+    {
+        if (predicate == null) 
+        {
+            throw new ArgumentNullException(nameof(predicate), "Предикат не может быть null.");
+        }
+
+        for (int i = 0; i < _count; i++) 
+        {
+            if (predicate(_array[i])) 
+            {
+                return _array[i]; 
+            }
+        }
+
+        return default; 
+    }
+
+    public void Sort(System.Func<TItem, TItem, int> sort)
+    {
+        for (int i = 1; i < _count; i++)
+    {
+        var current = _array[i];
+        int j = i - 1;
+
+        while (j >= 0 && sort(_array[j], current) > 0)
+        {
+            _array[j + 1] = _array[j];
+            j--;
+        }
+        
+        _array[j + 1] = current; 
+    }
+    }
 }

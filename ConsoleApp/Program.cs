@@ -10,21 +10,21 @@
         myList.Remove(2);
         myList.RemoveAt(2);
 
-        List<BaseEnemy> list = new List<BaseEnemy>();
+        // List<BaseEnemy> list = new List<BaseEnemy>();
         
 
-        TestClass testClass = new TestClass();
-        Enemy enemy = new Enemy();
+        // TestClass testClass = new TestClass();
+        // Enemy enemy = new Enemy();
 
         
 
-        testClass.AddHp(0);
+        // testClass.AddHp(0);
 
-        list.Add(enemy);
-        list.Add(testClass);
-        list.ForEach(en => en.Update());
+        // list.Add(enemy);
+        // list.Add(testClass);
+        // list.ForEach(en => en.Update());
         
-        ITestInterface test = enemy;
-        test.Update();
+        // ITestInterface test = enemy;
+        // test.Update();
     }
 }
